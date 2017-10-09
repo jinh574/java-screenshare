@@ -71,8 +71,8 @@ public class ServerGUI implements Runnable, ActionListener {
 		//화면공유 끄기 버튼
 		if(e.getSource()==btn_off) {
 			System.out.println("[serverGUI.java]Stop Sharing");
-			for(int i=0; i<serv.list.size(); i++) {
-				ServerThread st = (ServerThread)serv.list.elementAt(i);
+			for(int i=0; i<serv.getList().size(); i++) {
+				ServerThread st = (ServerThread)serv.getList().get(i);
 				st.serv_share.isSharing = false;
 				st.isSharing = false;
 				st.isShare = false;
@@ -94,8 +94,8 @@ public class ServerGUI implements Runnable, ActionListener {
 				e1.printStackTrace();
 			}
 		}
-		for(int i=0; i<serv.list.size(); i++) {
-			ServerThread st = (ServerThread)serv.list.elementAt(i);
+		for(int i=0; i<serv.getList().size(); i++) {
+			ServerThread st = (ServerThread)serv.getList().get(i);
 			if(st.isSharing) {
 				count++;
 			}

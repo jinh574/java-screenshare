@@ -1,5 +1,8 @@
 package io.github.hashbox;
 
+import com.ning.compress.lzf.LZFDecoder;
+import com.ning.compress.lzf.LZFEncoder;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -61,7 +64,7 @@ public class ClientShare implements Runnable{
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				System.out.println("[clientShare.java]Capturing Screen now.");
 				temp = rb.createScreenCapture(rect);
-				temp = scaleImage(temp, 640, 480);
+				temp = MyUtils.scaleImage(temp, 640, 480);
 				try {
 					ImageIO.write(temp, "jpg", baos);
 					baos.flush();
@@ -69,7 +72,8 @@ public class ClientShare implements Runnable{
 					buf = imageInByte;
 					System.out.println("[clientShare.java]Screen byte size : " + baos.size());
 					baos.close();
-					compressBytes(buf);
+					buf = compressBytes(buf);
+//					buf = LZFEncoder.encode(buf);
 					//DatagramPacket send_dp = new DatagramPacket(imageInByte, imageInByte.length, InetAddress.getByName(ip_address), send_port);
 					DatagramPacket send_dp = new DatagramPacket(buf, buf.length, InetAddress.getByName(ip_address), send_port);
 					send_ds.send(send_dp);
@@ -82,10 +86,11 @@ public class ClientShare implements Runnable{
 			try {
 				recv_ds.receive(recv_dp);
 				System.out.println("[clientShare.java]Recv Broadcast Screen Sharing Data.");
-				byte[] imageInByte = new byte[(int) DATAGRAM_MAX_SIZE]; 
+				byte[] imageInByte = new byte[(int) DATAGRAM_MAX_SIZE];
 				imageInByte = recv_dp.getData();
 				System.out.println("[clientShare.java]Screen byte size recv : " + recv_dp.getLength());
-				//imageInByte = extractBytes(imageInByte);
+				imageInByte = extractBytes(imageInByte);
+//				imageInByte = LZFDecoder.decode(imageInByte);
 				InputStream in = new ByteArrayInputStream(imageInByte);
 				BufferedImage screen = ImageIO.read(in);
 				if(screen==null) {
@@ -99,6 +104,8 @@ public class ClientShare implements Runnable{
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (DataFormatException e) {
+				e.printStackTrace();
 			}
 		}
 		clntGUI.lb_screen.setIcon(null);
@@ -109,7 +116,7 @@ public class ClientShare implements Runnable{
 		System.out.println("[clientShare.java]Stop clientShare Thread.");
 	}
 	
-	public byte[] compressBytes(byte[] data) throws UnsupportedEncodingException, IOException
+	public byte[] compressBytes(byte[] data) throws IOException
     {
         byte[] input = data;  //the format... data is the total string
         Deflater df = new Deflater();       //this function mainly generate the byte code
@@ -133,10 +140,10 @@ public class ClientShare implements Runnable{
         return output;
     }
      
-    public byte[] extractBytes(byte[] input) throws UnsupportedEncodingException, IOException, DataFormatException
+    public byte[] extractBytes(byte[] input) throws IOException, DataFormatException
     {
         Inflater ifl = new Inflater();   //mainly generate the extraction
-        //df.setLevel(Deflater.BEST_COMPRESSION);
+//        df.setLevel(Deflater.BEST_COMPRESSION);
         ifl.setInput(input);
  
         ByteArrayOutputStream baos = new ByteArrayOutputStream(input.length);
@@ -151,28 +158,6 @@ public class ClientShare implements Runnable{
  
         System.out.println("Original: "+input.length);
         System.out.println("Extracted: "+output.length);
-        //System.out.println("Data:");
-        //System.out.println(new String(output));
         return output;
     }
-    public BufferedImage scaleImage(BufferedImage img, int width, int height) {
-	    int imgWidth = img.getWidth();
-	    int imgHeight = img.getHeight();
-	    if (imgWidth * height < imgHeight * width) {
-	        width = imgWidth * height / imgHeight;
-	    } else {
-	        height = imgHeight * width / imgWidth;
-	    }
-	    BufferedImage newImage = new BufferedImage(width, height,
-	            BufferedImage.TYPE_INT_RGB);
-	    Graphics2D g = newImage.createGraphics();
-	    try {
-	        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-	        g.clearRect(0, 0, width, height);
-	        g.drawImage(img, 0, 0, width, height, null);
-	    } finally {
-	        g.dispose();
-	    }
-	    return newImage;
-	}
 }

@@ -9,7 +9,7 @@ public class ServerExit implements Runnable {
 
 	public void run() {
 		// TODO Auto-generated method stub
-		while(serv.list.size()==0 ? false : true) {
+		while(serv.getList().size()==0 ? false : true) {
 
 		}
 		System.exit(0);

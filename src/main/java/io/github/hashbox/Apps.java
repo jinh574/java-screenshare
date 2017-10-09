@@ -12,21 +12,22 @@ public class Apps implements ActionListener {
 	/**
 	 * @param args
 	 */
-	JFrame frame; //메인 프레임
-	JPanel p_choose; //선택 패널
+	private JFrame frame; //메인 프레임
+	private JPanel p_choose; //선택 패널
 	
-	JLabel lb_ip; //서버 아이피 라벨
-	JLabel lb_choose; //서버와 클라이언트 선택 문구
-	JButton btn_server; //서버 선택 버튼
-	JButton btn_client; //클라이언트 선택 버튼
+	private JLabel lb_ip; //서버 아이피 라벨
+	private JLabel lb_choose; //서버와 클라이언트 선택 문구
+	private JButton btn_server; //서버 선택 버튼
+	private JButton btn_client; //클라이언트 선택 버튼
 	
-	Server classServer;
-	Client classClient;
+	private Server classServer;
+	private Client classClient;
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new Apps();
 	}
+
 	public Apps() {
 		InetAddress inet;
 		

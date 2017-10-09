@@ -10,18 +10,18 @@ import java.net.Socket;
 
 
 public class Client implements Runnable {
-	final int tcp_port = 9000;
+	private final int tcp_port = 9000;
 	private String ip_address;
-	Robot rb;
-	BufferedImage image;
-	Rectangle rect;
-	Socket sock;
-	BufferedReader str_recv;
-	BufferedWriter str_send;
-	ClientGUI clntGUI;
-	ClientShare clnt_share;
-	boolean select_flag = false;
-	boolean exit_flag = false;
+	private Robot rb;
+	private BufferedImage image;
+	private Rectangle rect;
+	private Socket sock;
+	private BufferedReader str_recv;
+	private BufferedWriter str_send;
+	private ClientGUI clntGUI;
+	private ClientShare clnt_share;
+	private boolean select_flag = false;
+	private boolean exit_flag = false;
 	
 	public Client() throws IOException {
 		clntGUI = new ClientGUI(this);
@@ -67,27 +67,6 @@ public class Client implements Runnable {
 		}
 		return true;
 	}
-	
-	public BufferedImage scaleImage(BufferedImage img, int width, int height) {
-	    int imgWidth = img.getWidth();
-	    int imgHeight = img.getHeight();
-	    if (imgWidth * height < imgHeight * width) {
-	        width = imgWidth * height / imgHeight;
-	    } else {
-	        height = imgHeight * width / imgWidth;
-	    }
-	    BufferedImage newImage = new BufferedImage(width, height,
-	            BufferedImage.TYPE_INT_RGB);
-	    Graphics2D g = newImage.createGraphics();
-	    try {
-	        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-	        g.clearRect(0, 0, width, height);
-	        g.drawImage(img, 0, 0, width, height, null);
-	    } finally {
-	        g.dispose();
-	    }
-	    return newImage;
-	}
 
 	public void run() {
 		String msg;
@@ -107,7 +86,7 @@ public class Client implements Runnable {
 				msg = str_recv.readLine();
 				if(msg.equals("thumb")) {
 					temp = rb.createScreenCapture(rect);
-					image = scaleImage(temp, 160, 120);
+					image = MyUtils.scaleImage(temp, 160, 120);
 					ImageIO.write(image, "png", sock.getOutputStream());
 					send("ack");
 					msg = str_recv.readLine();

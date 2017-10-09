@@ -31,9 +31,8 @@ public class ServerShare implements Runnable {
 			while(isSharing) {
 				recv_ds.receive(recv_dp);
 				System.out.println("[serverShare.java]Recv Screen sharing data.");
-				for(int i=0; i<serv.list.size(); i++) {
-					ServerThread st = (ServerThread) serv.list.elementAt(i);
-					//System.out.println(st.clntSock.getInetAddress());
+				for(int i=0; i<serv.getList().size(); i++) {
+					ServerThread st = serv.getList().get(i);
 					DatagramPacket send_dp = new DatagramPacket(recv_dp.getData(), recv_dp.getLength(), st.clntSock.getInetAddress(), broadcast_port);
 					send_ds.send(send_dp);
 				}
