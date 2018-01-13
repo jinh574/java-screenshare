@@ -1,58 +1,83 @@
-package io.github.hashbox;
+package io.github.gomd.ScreenSharing;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Vector;
 
+/*
+ 	클라이언트들의 접속을 기다리고 
+ 	GUI, 서비스 스레드 등을 생성하는
+ 	가장 뒤에서 동작하는 부분.
+ */
 
 public class Server implements Runnable {
 	private final int tcp_port = 9000;
 	private ServerGUI servGUI;
-	private ArrayList<ServerThread> list;
+	private ArrayList<ServiceThread> list;
 	private Socket clntSock;
-
-	public ArrayList<ServerThread> getList() {
+	
+	public ArrayList<ServiceThread> getList() {
 		return list;
 	}
-
+	
 	public Server() {
 		servGUI = new ServerGUI(this);
 		new Thread(servGUI).start();
-	}
+	}//Constructor
+	
+	/* Thread */
 	public void run() {
-		list = new ArrayList<ServerThread>();
+		list = new ArrayList<ServiceThread>();
 		try {
 			ServerSocket server = new ServerSocket(tcp_port);
-			System.out.println("[SYSTEM]서버가 시작되었습니다.");
+			System.out.println("[Server]Server Started.");
 			while(true) {
-				clntSock = server.accept();
-				ServerThread st = new ServerThread(servGUI, clntSock, this);
-				addThread(st); //벡터에 스레드를 담는다.
+				clntSock = server.accept();  //Client의 연결을 기다린다.			
+				/* Client에게 서비스를 제공하는 스레드 */
+				ServiceThread st = new ServiceThread(servGUI,clntSock, this); 
+				addThread(st);  //스레드들을 리스트에 넣어서 관리
 				st.start();
 			}
-		} catch(Exception e) {
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}//run
+	
+	public void addThread(ServiceThread st) {
+		list.add(st);
 	}
-	public void addThread(ServerThread st) {
-		  list.add(st);//벡터에 쓰레드를 담는다.
-	}//addThread
 	
-	public void removeThread(ServerThread st) {
-		  list.remove(st);//벡터에서 해당 쓰레드를 없앤다.
-	}//removeThread
-	
-	public void broadcast(String str) throws IOException {
+	public void removeThread(ServiceThread st) {
+		list.remove(st);
+	}
+
+	/* Client들에게 서버의 신호를 전송. (끊겠다, 공유하겠다 등) */
+	public void signal(String str) throws IOException {
 		for (int i = 0; i < list.size(); i++) {
-			ServerThread st = (ServerThread) list.get(i);
-			st.send(str);//각각의 쓰레드마다 채팅 내용 전송한다.
+			ServiceThread st = list.get(i);
+			st.send(str);  // 각각의 스레드마다 신호 전송
 		}
 	}
 	
-	public boolean doShare(int i) throws IOException {
-		ServerThread st = (ServerThread) this.list.get(i);
+	public void setBarrier() throws IOException {
+		for (int i = 0; i < list.size(); i++) {
+			ServiceThread st = list.get(i);
+			st.barrier = true;
+		}
+	}
+	
+	public void setStop() throws IOException {
+		for (int i = 0; i < list.size(); i++) {
+			ServiceThread st = list.get(i);
+			st.stop = true;
+			st.barrier = true;
+		}
+	}
+	
+	/* 어떤 Client 화면을 클릭하였는지 flag */
+	public boolean flagShare(int i) throws IOException {
+		ServiceThread st = list.get(i);
 		st.isShare = true;
 		
 		return true;

@@ -1,4 +1,4 @@
-package io.github.hashbox;
+package io.github.gomd.ScreenSharing;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,11 +9,12 @@ public class MyUtils {
 		int imgHeight = img.getHeight();
 		if (imgWidth * height < imgHeight * width) {
 			width = imgWidth * height / imgHeight;
-		} else {
+		} else { 
 			height = imgHeight * width / imgWidth;
 		}
 		BufferedImage newImage = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
+		
 		Graphics2D g = newImage.createGraphics();
 		try {
 			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
