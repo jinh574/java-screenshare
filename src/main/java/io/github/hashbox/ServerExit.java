@@ -1,7 +1,7 @@
-package io.github.hashbox;
+package io.github.gomd.ScreenSharing;
 
 public class ServerExit implements Runnable {
-	Server serv;
+Server serv;
 	
 	public ServerExit(Server serv) {
 		this.serv = serv;
@@ -14,5 +14,4 @@ public class ServerExit implements Runnable {
 		}
 		System.exit(0);
 	}
-
 }
